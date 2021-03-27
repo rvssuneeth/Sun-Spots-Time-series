@@ -1,0 +1,106 @@
+---
+title: "TsProject"
+author: "Suneeth ravilla"
+date: "4/29/2020"
+output: word_document
+---
+
+```{r}
+data <- read.csv("/Users/suneeth/Downloads/tsproj.csv")
+library(aTSA)
+View(data)
+#complete.cases(data)
+```
+
+```{r}
+yeardat = aggregate(Sunspots~Year,data = data,FUN = "sum")
+```
+
+```{r}
+dat1 <- yeardat[c(1:225),]
+dat2 <-yeardat[c(226:235),]
+```
+
+```{r}
+x<-subset(dat1, select = Sunspots)
+x1<-ts(x)
+ts.plot(x1)
+
+```
+```{r}
+acf(x1)
+```
+
+```{r}
+pacf(x1)
+```
+
+
+
+```{r}
+t<-data.matrix(x1[1:200,])
+stationary.test(t)      
+```
+
+
+
+```{r}
+library(aTSA)
+library(TSA)
+library(forecast)
+
+m.1<-auto.arima(x1)
+m.1
+```
+
+```{r}
+m.2 <- arima(x1, order = c(1,0,1), seasonal = list(order = c(1,0,0), frequency = 11)) 
+m.2
+```
+
+```{r}
+m.3 <- arima(x1, order = c(2,0,1), seasonal = list(order = c(1,0,0), frequency = 11)) 
+m.3
+```
+
+```{r}
+m.4 <- arima(x1, order = c(3,0,1), seasonal = list(order = c(1,0,0), frequency = 11)) 
+m.4
+```
+
+```{r}
+m.5 <- arima(x1, order = c(2,0,1), seasonal = list(order = c(1,0,1), frequency = 11)) 
+m.5
+```
+
+
+```{r}
+tsdiag(m.5)
+```
+
+
+
+```{r}
+xlag1=lag(x1,1)
+xlag2=lag(x1,2)
+y=cbind(x1, xlag1, xlag2)
+set.seed(0)
+linear_fit=lm(y[,1]~y[,2]+y[,3])
+summary(linear_fit)
+```
+
+
+
+```{r}
+plot(linear_fit$fit, linear_fit$residuals)
+```
+
+```{r}
+predict(m.5, n.ahead=10)
+```
+
+
+```{r}
+autoplot(forecast(m.5))
+```
+
